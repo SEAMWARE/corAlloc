@@ -9,7 +9,7 @@
 //
 #include <string.h>                     // memcpy
 
-#include "kbase/kLibLog.h"              // KLOG_*
+#include "corBase/corLibLog.h"          // COR_LIB_*
 
 #include "corAlloc/CorAllocStatus.h"    // CorAllocStatus
 #include "corAlloc/corAllocInit.h"      // corAllocInit
@@ -27,7 +27,7 @@
 //
 char* corAllocRealloc(CorAlloc* kaP, char* origBuf, unsigned long long origSize, unsigned long long newSize)
 {
-  KLOG_T(CorAllocTraceAlloc, "%s re-allocating from %llu to %llu bytes", kaP->name, origSize, newSize);
+  COR_LIB_T(CorAllocTraceAlloc, "%s re-allocating from %llu to %llu bytes", kaP->name, origSize, newSize);
 
   char* buf = corAlloc(kaP, newSize);
 

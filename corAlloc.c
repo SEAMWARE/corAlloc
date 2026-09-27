@@ -11,7 +11,7 @@
 #include <string.h>                     // memset
 #include <unistd.h>                     // usleep
 
-#include "kbase/kLibLog.h"              // KLOG_*
+#include "corBase/corLibLog.h"          // COR_LIB_*
 #include "corAlloc/CorAllocStatus.h"    // CorAllocStatus
 #include "corAlloc/corAllocInit.h"      // corAllocInit
 #include "corAlloc/CorAllocTraceLevel.h"        // Trace Levels for corAlloc library
@@ -79,7 +79,7 @@ char* corAlloc(CorAlloc* kaP, unsigned long long size)
     return start;
   }
 
-  // KLOG_M("KALL: ALLOCATING ADDITIONAL BUFFER of %d bytes (using calloc)", kaP->allocSize);
+  // COR_LIB_I("KALL: ALLOCATING ADDITIONAL BUFFER of %d bytes (using calloc)", kaP->allocSize);
   kaP->allocPointer = (char*) calloc(1, kaP->allocSize);
   if (kaP->allocPointer == NULL)
   {
@@ -92,14 +92,14 @@ char* corAlloc(CorAlloc* kaP, unsigned long long size)
       ++retries;
       if ((kaP->allocPointer == NULL) && (retries > 100))
       {
-        KLOG_M("KALL: ******************************* ERROR - out of memory: calloc returned NULL !!!");
+        COR_LIB_E("out of memory: calloc returned NULL, 100 times");
         CORALLOC_ERROR_HOOK(kaP, CorAllocAllocError, "Unable to allocate buffer", NULL);
         return NULL;
       }
     }
   }
   kaP->bytesLeft = kaP->allocSize;
-  // KLOG_M("KALL: right after allocating more buffer: %d bytes left", kaP->bytesLeft);
+  // COR_LIB_I("KALL: right after allocating more buffer: %d bytes left", kaP->bytesLeft);
 
   //
   // Save pointer to allocated buffer in kaP->allocList
@@ -129,7 +129,7 @@ char* corAlloc(CorAlloc* kaP, unsigned long long size)
   // ... and count off the size of the chunk just given away
   kaP->bytesLeft      -= size;
 
-  // KLOG_M("KALL: end-of-function: returning a buf od %d bytes at %p, and bytesLeft: %d", size, start, kaP->bytesLeft);
+  // COR_LIB_I("KALL: end-of-function: returning a buf od %d bytes at %p, and bytesLeft: %d", size, start, kaP->bytesLeft);
 
   // sem_post(&kaP->sem);
   return start;

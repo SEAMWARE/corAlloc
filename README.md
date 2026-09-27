@@ -6,7 +6,7 @@ A high-performance memory allocation library optimized for temporary buffers in 
 - **Language:** C
 - **License:** [Apache License 2.0](LICENSE)
 
-The only dependency is **kbase**.
+The only dependency is **corBase**.
 
 ## Where it comes from
 
@@ -179,7 +179,7 @@ int main(void)
 
 ## Dependencies
 
-- [kbase](../kbase) - the library-internal log macros (KLOG_*)
+- [corBase](../corBase) - the library log (COR_LIB_*): corAlloc logs through the executable's log function
 
 ## License
 

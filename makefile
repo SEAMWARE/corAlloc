@@ -47,7 +47,7 @@ DEPS          = $(OBJECTS:.o=.d) $(OBJDIR)/corAllocTest.d
 # It stays in obj/: it is not a tool, and nothing installs it.
 #
 TEST          = $(OBJDIR)/corAllocTest
-TEST_LIBS     = ../kbase/libkbase.a -lpthread -lrt
+TEST_LIBS     = ../corBase/libcorBase.a -lpthread -lrt
 
 all: $(LIB) $(LIB_SO) $(TEST)
 

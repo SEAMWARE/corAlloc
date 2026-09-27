@@ -16,9 +16,12 @@
 //
 // CorAllocTraceLevel
 //
+// The trace levels are the EXECUTABLE's number space - COR_LIB_T hands them to its
+// log function - and every library takes a hundred of its own: corAlloc's is 300.
+//
 typedef enum CorAllocTraceLevel
 {
-  CorAllocTraceInit,
+  CorAllocTraceInit = 300,
   CorAllocTraceNewBuffer,
   CorAllocTraceAllocBytesLeft,
   CorAllocTraceAlloc,
