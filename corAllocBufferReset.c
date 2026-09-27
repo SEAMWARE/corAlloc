@@ -11,7 +11,6 @@
 #include <string.h>                     // memset
 #include <stdbool.h>                    // bool
 
-#include "kbase/kLibLog.h"              // KLOG_*
 
 #include "corAlloc/CorAlloc.h"          // CorAlloc
 #include "corAlloc/CorAllocBuffer.h"    // CorAllocBuffer

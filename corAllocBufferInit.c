@@ -10,7 +10,7 @@
 #include <stdio.h>                      // NULL
 #include <string.h>                     // strdup
 
-#include "kbase/kLibLog.h"              // KLOG_*
+#include "corBase/corLibLog.h"          // COR_LIB_*
 #include "corAlloc/CorAllocTraceLevel.h"        // CorAllocTraceLevel
 #include "corAlloc/corAllocInit.h"      // corAllocInit
 #include "corAlloc/CorAlloc.h"          // CorAlloc
@@ -49,5 +49,5 @@ void corAllocBufferInit
   kaP->allocListTail = NULL;
   kaP->name          = (char*) name;
 
-  KLOG_T(CorAllocTraceInit, "Initialized buffer at %p, allocSize is %llu", kaP->initBuf, kaP->allocSize);
+  COR_LIB_T(CorAllocTraceInit, "Initialized buffer at %p, allocSize is %llu", kaP->initBuf, kaP->allocSize);
 }
