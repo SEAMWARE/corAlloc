@@ -35,4 +35,12 @@
 //
 extern char* corAlloc(CorAlloc* kaP, unsigned long long size);
 
+
+
+// -----------------------------------------------------------------------------
+//
+// corAllocThreadSafe - make kaP safe to allocate from on several threads at once (see corAlloc.c)
+//
+extern void corAllocThreadSafe(CorAlloc* kaP);
+
 #endif  // CORALLOC_CORALLOC_H_

@@ -36,8 +36,6 @@ void corAllocBufferInit
   if (kaP == NULL)
     return;
 
-  // sem_init(&kaP->sem, 0, 1);
-
   kaP->initBuf       = buf;
   kaP->initBufSize   = bufSize;
   kaP->allocations   = 0;
@@ -48,6 +46,7 @@ void corAllocBufferInit
   kaP->allocList     = NULL;
   kaP->allocListTail = NULL;
   kaP->name          = (char*) name;
+  kaP->threadSafe    = false;         // corAllocThreadSafe() opts in, after this
 
   COR_LIB_T(CorAllocTraceInit, "Initialized buffer at %p, allocSize is %llu", kaP->initBuf, kaP->allocSize);
 }
