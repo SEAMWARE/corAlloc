@@ -24,13 +24,10 @@
 
 // -----------------------------------------------------------------------------
 //
-// corAlloc -
+// allocate - the allocation itself (the caller holds the mutex if kaP is thread-safe)
 //
-char* corAlloc(CorAlloc* kaP, unsigned long long size)
+static char* allocate(CorAlloc* kaP, unsigned long long size)
 {
-  if (kaP == NULL)
-    return NULL;
-
   //
   // Oversized allocations: any single item that wouldn't fit in a regular
   // chunk gets its own dedicated buffer. We still thread it through allocList
@@ -62,8 +59,6 @@ char* corAlloc(CorAlloc* kaP, unsigned long long size)
 
     return (char*) (kabP + 1);  // data region starts right after the header
   }
-
-  // sem_wait(&kaP->sem);
 
   //
   // Take a chunk from the allocation buffer (kaP->allocPointer)
@@ -131,6 +126,54 @@ char* corAlloc(CorAlloc* kaP, unsigned long long size)
 
   // COR_LIB_I("KALL: end-of-function: returning a buf od %d bytes at %p, and bytesLeft: %d", size, start, kaP->bytesLeft);
 
-  // sem_post(&kaP->sem);
   return start;
+}
+
+
+
+// -----------------------------------------------------------------------------
+//
+// corAlloc -
+//
+// A buffer allocator is not thread-safe, and almost never needs to be: nearly every
+// one is a request's own arena, used by one thread. The exception is an allocator
+// SHARED between threads - the JSON-LD context store, into which every thread that
+// downloads or parses a context allocates. Without the mutex, two threads doing that
+// at once (two different uncached @contexts) raced on allocPointer / bytesLeft /
+// allocList: overlapping allocations and a corrupted block list. Such an allocator
+// calls corAllocThreadSafe() once, after corAllocBufferInit; every other one pays a
+// branch.
+//
+char* corAlloc(CorAlloc* kaP, unsigned long long size)
+{
+  if (kaP == NULL)
+    return NULL;
+
+  if (kaP->threadSafe == false)
+    return allocate(kaP, size);
+
+  pthread_mutex_lock(&kaP->mutex);
+  char* bufP = allocate(kaP, size);
+  pthread_mutex_unlock(&kaP->mutex);
+
+  return bufP;
+}
+
+
+
+// -----------------------------------------------------------------------------
+//
+// corAllocThreadSafe - from now on, every allocation from kaP takes kaP's mutex
+//
+// Call once, after corAllocBufferInit and before a second thread can reach kaP. What
+// this protects is the allocator; what the allocations are used for is the caller's
+// business (two threads building two different objects need nothing more).
+//
+void corAllocThreadSafe(CorAlloc* kaP)
+{
+  if (kaP == NULL)
+    return;
+
+  pthread_mutex_init(&kaP->mutex, NULL);
+  kaP->threadSafe = true;
 }

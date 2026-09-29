@@ -10,7 +10,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
-#include <semaphore.h>                  // sem_t
+#include <pthread.h>                    // pthread_mutex_t
+#include <stdbool.h>                    // bool
 
 #include "corAlloc/corAllocHooks.h"     // CorAllocErrorHook
 #include "corAlloc/CorAllocBuffer.h"    // CorAllocBuffer
@@ -23,7 +24,8 @@
 //
 typedef struct CorAlloc
 {
-  sem_t           sem;            // semaphore to protect the allocation buffer
+  bool            threadSafe;     // corAllocThreadSafe() was called: every allocation takes the mutex
+  pthread_mutex_t mutex;          // ... this one
   char*           initBuf;        // pointer to the initial buffer
   unsigned long long initBufSize; // total size of initial buffer
   int             allocations;    // number of additional allocations done
