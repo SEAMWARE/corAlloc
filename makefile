@@ -32,6 +32,7 @@ LIB_SOURCES   = CorAllocStatus.c      \
                 corAllocStrdup.c      \
                 corAllocBufferInit.c  \
                 corAllocBufferReset.c \
+                corAllocAdopt.c       \
                 corAllocInit.c        \
                 corAllocVersion.c     \
                 corAllocLog.c         \
