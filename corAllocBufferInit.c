@@ -7,6 +7,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
+#include <stdint.h>                     // uintptr_t
 #include <stdio.h>                      // NULL
 #include <string.h>                     // strdup
 
@@ -36,11 +37,21 @@ void corAllocBufferInit
   if (kaP == NULL)
     return;
 
+  //
+  // The first allocation 8-aligned, whatever the alignment of the caller's buffer (a char array) - every
+  // allocation is a multiple of 8 (corAlloc.c), so all of them are then. initBuf stays the caller's
+  // buffer: corAllocBufferReset clears and re-inits it from there.
+  //
+  unsigned long long skip = (8 - ((unsigned long long) (uintptr_t) buf & 7)) & 7;
+
+  if (skip > bufSize)
+    skip = bufSize;
+
   kaP->initBuf       = buf;
   kaP->initBufSize   = bufSize;
   kaP->allocations   = 0;
-  kaP->allocPointer  = buf;
-  kaP->bytesLeft     = bufSize;
+  kaP->allocPointer  = buf + skip;
+  kaP->bytesLeft     = bufSize - skip;
   kaP->errorHook     = errorHook;
   kaP->allocSize     = allocSize;
   kaP->allocList     = NULL;
