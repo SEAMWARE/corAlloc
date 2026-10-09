@@ -29,6 +29,15 @@
 static char* allocate(CorAlloc* kaP, unsigned long long size)
 {
   //
+  // Every allocation is a multiple of 8 bytes, so every pointer handed out is 8-aligned: the buffers
+  // start 8-aligned (malloc, corAllocBufferInit) and each one advances by a multiple of 8. Without it
+  // a struct allocated after an odd-sized string (a CorNode after its name) sat at an odd address -
+  // undefined behaviour in C (UBSan: "member access within misaligned address"), split cache lines,
+  // and on aarch64 a fault for any atomic or exclusive access to it.
+  //
+  size = (size + 7) & ~7ULL;
+
+  //
   // Oversized allocations: any single item that wouldn't fit in a regular
   // chunk gets its own dedicated buffer. We still thread it through allocList
   // so corAllocBufferReset() frees it along with the normal chunks — no separate
