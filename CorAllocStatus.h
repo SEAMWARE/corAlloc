@@ -14,7 +14,7 @@
 
 // -----------------------------------------------------------------------------
 //
-// KjStatus - 
+// CorAllocStatus - 
 //
 typedef enum CorAllocStatus
 {

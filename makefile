@@ -32,9 +32,7 @@ LIB_SOURCES   = CorAllocStatus.c      \
                 corAllocStrdup.c      \
                 corAllocBufferInit.c  \
                 corAllocBufferReset.c \
-                corAllocInit.c        \
                 corAllocVersion.c     \
-                corAllocLog.c         \
                 corAllocMem.c
 
 BUILD        ?= debug
