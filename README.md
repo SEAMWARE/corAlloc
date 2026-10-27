@@ -27,7 +27,7 @@ header that declares `corAlloc()` and includes the rest of the library.
 
 - **Extremely fast allocation** - O(1) pointer arithmetic, no complex data structures
 - **Bulk deallocation** - Reset entire buffer in one call instead of individual frees
-- **Thread-safe** - POSIX semaphore protection for multi-threaded use
+- **Thread-safe on request** - an allocator shared between threads calls `corAllocThreadSafe()`, and every allocation from it takes a pthread mutex; any other allocator is used by one thread at a time
 - **Buffer reuse** - Initial buffer can be stack-allocated and reused across cycles
 - **Expandable** - Automatically allocates additional buffers when needed
 
@@ -79,8 +79,21 @@ char* corAlloc(CorAlloc* kaP, unsigned long long size);
 
 Allocates `size` bytes from the buffer. Returns pointer to allocated memory, or NULL on failure.
 
+Every allocation is rounded up to a multiple of 8 bytes and handed out zeroed.
+
 **Fast path**: If current buffer has space, simply advances pointer (O(1)).
-**Slow path**: If buffer is full, allocates new buffer via `calloc()`.
+**Slow path**: If buffer is full, allocates a new buffer of `allocSize` bytes with `malloc()`; the
+chunk handed out is zeroed, the rest of the buffer is not. An allocation that does not fit in an
+`allocSize` buffer gets one of its own, with `calloc()`.
+
+#### corAllocThreadSafe
+
+```c
+void corAllocThreadSafe(CorAlloc* kaP);
+```
+
+From then on every allocation from `kaP` takes `kaP`'s mutex. Called once, after `corAllocBufferInit`,
+for an allocator that several threads allocate from at once.
 
 #### corAllocStrdup
 
@@ -125,12 +138,14 @@ make install  # Build (nothing to copy: consumers use -I.. and link from this ch
 ## Usage Example
 
 ```c
+#include <stdio.h>
+
 #include "corAlloc/corAlloc.h"
 
 int main(void)
 {
-    CorAlloc corAlloc;
-    char   initBuffer[4096];
+    CorAlloc kalloc;
+    char     initBuffer[4096];
 
     // Initialize with 4KB initial buffer, 8KB subsequent allocations
     corAllocBufferInit(&kalloc, initBuffer, sizeof(initBuffer), 8192, NULL, "main");
@@ -141,12 +156,15 @@ int main(void)
     char* buf2 = corAlloc(&kalloc, 1024);
 
     // Use buffers...
+    snprintf(buf1, 256, "%s", str);
+    buf2[0] = buf1[0];
 
     // Reset for next cycle (reuse initial buffer)
     corAllocBufferReset(&kalloc, true);
 
     // Allocate again for next request...
     char* buf3 = corAlloc(&kalloc, 512);
+    buf3[0] = 0;
 
     // Final cleanup
     corAllocBufferReset(&kalloc, false);
@@ -159,7 +177,7 @@ int main(void)
 | Operation | Time Complexity | Notes |
 |-----------|-----------------|-------|
 | corAlloc (in-buffer) | O(1) | Simple pointer arithmetic |
-| corAlloc (new buffer) | O(1)* | *Excludes calloc overhead |
+| corAlloc (new buffer) | O(1)* | *Excludes malloc overhead |
 | corAllocStrdup | O(n) | n = string length |
 | corAllocRealloc | O(n) | n = data size to copy |
 | corAllocBufferReset | O(m) | m = number of allocated buffers |

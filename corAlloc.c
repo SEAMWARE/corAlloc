@@ -13,11 +13,9 @@
 
 #include "corBase/corLibLog.h"          // COR_LIB_*
 #include "corAlloc/CorAllocStatus.h"    // CorAllocStatus
-#include "corAlloc/corAllocInit.h"      // corAllocInit
 #include "corAlloc/CorAllocTraceLevel.h"        // Trace Levels for corAlloc library
 #include "corAlloc/corAllocHooks.h"     // CORALLOC_ERROR_HOOK
 #include "corAlloc/CorAlloc.h"          // CorAlloc
-#include "corAlloc/corAllocLog.h"       // CORALLOC_*
 #include "corAlloc/corAlloc.h"          // Own Interface
 
 
